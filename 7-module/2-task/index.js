@@ -1,11 +1,15 @@
 import createElement from "../../assets/lib/create-element.js";
 
 export default class Modal {
-  constructor() {}
-  open() {
-    document.body.classList.add("is-modal-open");
+  constructor() {
+    this.render();
+    this.elem.addEventListener('click', this.onClick);
+  }
+
+  render() {
     // создание modelBody
-    let modalBody = createElement(`
+    // let modalBody = createElement(`
+    this.elem = createElement(`
     <!--Корневой элемент Modal-->
     <div class="modal">
       <!--Прозрачная подложка перекрывающая интерфейс-->
@@ -25,20 +29,41 @@ export default class Modal {
         </div>
       </div>  
     </div>
-    `);
+    `);  
+  }
 
-    document.body.append(modalBody);
+  onClick = (event) => {
+    if (event.target.closest('.modal__close')) {
+      event.preventDefault();
+      this.close();
+    }
+  }
+ 
+  onDocumentKeyDown = (event) => {
+    if (event.code === 'Escape') {
+      event.preventDefault();
+      this.close();
+    }
+  }
+
+
+  open() {
+    document.body.classList.add("is-modal-open");
+    document.body.append(this.elem);
+    document.addEventListener('keydown', this.onDocumentKeyDown);
   }
   setBody(node) {
-    let modalBody = document.querySelector(".modal__body");
-    modalBody.replaceWith(node);
+    let modalBody = this.elem.querySelector(".modal__body");
+    modalBody.innerHTML = '';
+    modalBody.append(node);
   }
   setTitle(strHeader = "") {
-    let modalTitle = document.querySelector(".modal__title");
+    let modalTitle = this.elem.querySelector(".modal__title");
     modalTitle.textContent = strHeader;
   }
   close() {
+    document.removeEventListener('keydown', this.onDocumentKeyDown);
     document.body.classList.remove("is-modal-open");
-    this.modalBody = null;
+    this.elem.remove();
   }
 }
